@@ -1,0 +1,46 @@
+//bardzo wazne zeby tak to pisac:
+while (window.isOpen()) {
+    while (const std::optional event = window.pollEvent())
+    {
+        if (event->is<sf::Event::Closed>())
+            window.close();
+    }
+}
+
+
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+#include <optional>
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode({800u, 600u}), "FPS Window");
+
+    sf::CircleShape ball(30.f);
+    ball.setFillColor(sf::Color::Green);
+    ball.setPosition({100.f, 100.f});
+
+    sf::Font font;
+    if (!font.openFromFile("/System/Library/Fonts/Supplemental/Arial.ttf")) {
+        return 1;
+    }
+
+    sf::Text fpsText(font,"Gra w Zycie", 20);
+    fpsText.setPosition({400.f, 300.f});
+    fpsText.setFillColor(sf::Color::White);
+
+    while (window.isOpen()) {
+        while (const std::optional event = window.pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+                window.close();
+        }
+
+        window.clear();
+        window.draw(ball);
+        window.draw(fpsText);
+        window.display();
+    }
+
+    return 0;
+}
