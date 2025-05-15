@@ -14,7 +14,7 @@ sf::RectangleShape makeCell(int x, int y, sf::Color color) {
     return rect;
 }
 
-void runLangtonsAnt(sf::RenderWindow& window) {
+void runLangtonsAnt(sf::RenderWindow& window, int speed) {
     std::unordered_map<int, std::unordered_map<int, bool>> grid;
 
     int antX = gridSize / 2;
@@ -61,5 +61,6 @@ void runLangtonsAnt(sf::RenderWindow& window) {
         window.draw(antShape);
 
         window.display();
+        sf::sleep(sf::milliseconds(speed));
     }
 }
