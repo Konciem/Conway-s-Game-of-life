@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
+#include <regex>
 #include "langton.hpp"
 
 enum class AppState {
@@ -57,6 +58,7 @@ int main() {
     AppState appState = AppState::MENU;
     SimulationType simType = SimulationType::NONE;
     std::string speedInput = "";
+    std::regex liczba_regex("^[0-9]+$"); // Regex to match numeric input
 
     Button langtonButton("Langton's Ant", { 350, 300 }, { 300, 80 }, font);
     Button lifeButton("Game of Life", { 350, 400 }, { 300, 80 }, font);
@@ -117,13 +119,22 @@ int main() {
                         std::cout << "ASCII character typed: " << static_cast<char>(textEntered->unicode) << std::endl;
                     if (textEntered->unicode == '\b' && !speedInput.empty()) {
                         speedInput.pop_back();
-                    } else if (textEntered->unicode == 13 || textEntered->unicode == '\n') {
-                        appState = AppState::SIMULATION;
-                        std::cout << "Uruchamianie symulacji z predkoscia: " << speedInput << " ms\n";
                     } else if (std::isdigit(textEntered->unicode)) {
                         speedInput += static_cast<char>(textEntered->unicode);
-                        
                     }
+
+                    if (std::regex_match(speedInput, liczba_regex)) {
+                        int speed = std::stoi(speedInput);
+                        if (speed > 0) {
+                            appState = AppState::SIMULATION;
+                            std::cout << "Uruchamianie symulacji z predkoscia: " << speed << " ms\n";
+                        } else {
+                            std::cout << "Podaj liczbę większą od zera!\n";
+                            speedInput.clear();
+                            inputText.setString("Błąd: > 0");
+                        }
+                    }
+
                     inputText.setString(speedInput);
                     
                 }
