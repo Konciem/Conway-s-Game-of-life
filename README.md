@@ -53,7 +53,7 @@ W kolejnym etapie dostępne będą ustawienia:
 ### ⌨️ Sterowanie w trakcie symulacji:
 - **Spacja** – pauza/wznowienie symulacji.
 - **Prawy przycisk myszy** – kliknięcie zmienia stan danej komórki.
-- *(Planowane)*: Panel w prawym górnym rogu wyświetlający:
+- Panel w prawym górnym rogu wyświetlający:
   - Liczbę żywych komórek („mieszkańców”)
   - Czas trwania symulacji (liczba kroków/odświeżeń)
 

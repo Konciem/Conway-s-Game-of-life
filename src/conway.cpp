@@ -57,7 +57,18 @@ void runConway(sf::RenderWindow& window, int speed) {
     infoText.setFont(font);
     infoText.setCharacterSize(16);
     infoText.setFillColor(sf::Color::Red);
-    infoText.setPosition({window.getSize().x - 250.0f, 10.0f}); // prawy górny róg
+    infoText.setPosition({window.getSize().x - 250.0f, 12.0f}); // prawy górny róg
+
+    sf::RectangleShape rectB;
+    rectB.setSize(sf::Vector2f(150.0f, 60.0f));
+    rectB.setFillColor(sf::Color::Black);
+    rectB.setPosition({window.getSize().x - 260.0f, 5.0f});
+    
+    sf::RectangleShape rectW;
+    rectW.setSize(sf::Vector2f(140.0f, 50.0f));
+    rectW.setFillColor(sf::Color::White);
+    rectW.setPosition({window.getSize().x - 255.0f, 10.0f});
+    
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
@@ -155,6 +166,8 @@ void runConway(sf::RenderWindow& window, int speed) {
         ss << "Czas: " << liczbaKrokow;
         infoText.setString(ss.str());
 
+       
+
         // Rysowanie
         window.clear(sf::Color::White);
 
@@ -183,6 +196,8 @@ void runConway(sf::RenderWindow& window, int speed) {
             }
         }
 
+        window.draw(rectB); // Rysuj prostokąt tła
+        window.draw(rectW);
         window.draw(infoText); // <-- wyświetl tekst informacyjny
 
         window.display();
