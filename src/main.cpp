@@ -3,6 +3,10 @@
 #include <string>
 #include <regex>
 #include "langton.hpp"
+#include "conway.hpp"
+
+
+
 
 enum class AppState {
     MENU,
@@ -51,7 +55,7 @@ public:
 int main() {
     sf::RenderWindow window(sf::VideoMode({WINDOW_SIZE.x, WINDOW_SIZE.y}), "Symulacje", sf::Style::Close);
     sf::Font font;
-    if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Monocraft.ttc")) {
+    if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Oswald-VariableFont_wght.ttf")) {
         return 1;
     }
 
@@ -167,6 +171,10 @@ int main() {
                 if (simType == SimulationType::LANGTON) {
                     int speed = std::stoi(speedInput);  
                     runLangtonsAnt(window, speed);
+                    window.close();
+                } else if (simType == SimulationType::GAME_OF_LIFE) {
+                    int speed = std::stoi(speedInput);  
+                    runConway(window, speed);
                     window.close();
                 }
                 break;

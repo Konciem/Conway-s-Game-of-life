@@ -5,6 +5,11 @@ constexpr int windowSize = 1000;
 constexpr int cellSize = 10;
 constexpr int gridSize = windowSize / cellSize;
 
+template<typename T>
+concept Milliseconds = std::integral<T> && requires(T t) {
+    { t > 0 };
+};
+
 enum Direction { Up, Right, Down, Left };
 
 sf::RectangleShape makeCell(int x, int y, sf::Color color) {
@@ -45,6 +50,24 @@ void runLangtonsAnt(sf::RenderWindow& window, int speed) {
         }
 
         window.clear(sf::Color::White);
+
+
+        for (int x = 0; x <= window.getSize().x; x += cellSize) {
+            sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(x, 0), sf::Color(200, 200, 200)),
+            sf::Vertex(sf::Vector2f(x, window.getSize().y), sf::Color(200, 200, 200))
+            };
+        window.draw(line, 2, sf::PrimitiveType::Lines);
+
+        }
+
+        for (int y = 0; y <= window.getSize().y; y += cellSize) {
+            sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(0, y), sf::Color(200, 200, 200)),
+            sf::Vertex(sf::Vector2f(window.getSize().x, y), sf::Color(200, 200, 200))
+        };
+        window.draw(line, 2, sf::PrimitiveType::Lines);
+        }
 
         for (const auto& [y, row] : grid) {
             for (const auto& [x, black] : row) {
