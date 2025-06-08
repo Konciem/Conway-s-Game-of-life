@@ -49,7 +49,6 @@ W kolejnym etapie dostępne będą ustawienia:
   - Duże  
   *(okno symulacji ma stałe wymiary 1000x1000 px)*
 - **Szybkość odświeżania**: możliwość ręcznego ustawienia czasu w milisekundach.
-- *(Planowane)*: Możliwość wyboru kolorów komórek – być może poprzez paletę lub RGB.
 
 ### ⌨️ Sterowanie w trakcie symulacji:
 - **Spacja** – pauza/wznowienie symulacji.
