@@ -18,4 +18,6 @@ Stan każdej komórki zależy od jej ośmiu sąsiadów (tzw. sąsiedztwo Moore�
 - 🔹 Żywa komórka umiera, jeśli ma **więcej niż 3 sąsiadów** (przeludnienie).
 - 🔹 Martwa komórka ożywa, jeśli ma **dokładnie 3 sąsiadów** (rozmnażanie).
 
+![Image](https://github.com/user-attachments/assets/da2b2889-cc1c-4da6-987a-dd0b5ef2f67a)
+
 ---
