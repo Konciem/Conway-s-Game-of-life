@@ -14,10 +14,48 @@ Stan każdej komórki zależy od jej ośmiu sąsiadów (tzw. sąsiedztwo Moore�
 
 ## 🧠 Logika gry
 
-- 🔹 Żywa komórka umiera, jeśli ma **mniej niż 2 sąsiadów** (samotność).
-- 🔹 Żywa komórka umiera, jeśli ma **więcej niż 3 sąsiadów** (przeludnienie).
-- 🔹 Martwa komórka ożywa, jeśli ma **dokładnie 3 sąsiadów** (rozmnażanie).
+- Żywa komórka umiera, jeśli ma **mniej niż 2 sąsiadów** (samotność).
+- Żywa komórka umiera, jeśli ma **więcej niż 3 sąsiadów** (przeludnienie).
+- Martwa komórka ożywa, jeśli ma **dokładnie 3 sąsiadów** (rozmnażanie).
 
 ![Image](https://github.com/user-attachments/assets/da2b2889-cc1c-4da6-987a-dd0b5ef2f67a)
+
+---
+
+## 🐜 Langton's Ant
+
+Dodatkowo planowana jest implementacja drugiego automatu komórkowego – **Mrówki Langtona**. W tym automacie wyróżniona jest jedna komórka, nazwana „mrówką”, która oprócz koloru ma określony **kierunek poruszania się**. Mrówka zachowuje się według prostych zasad:
+
+- ➡️ **Na białym polu**: mrówka obraca się w **prawo (90°)**, zmienia kolor pola na czarny, przechodzi na kolejną komórkę.
+- ⬅️ **Na czarnym polu**: mrówka obraca się w **lewo (90°)**, zmienia kolor pola na biały, przechodzi na kolejną komórkę.
+
+Mrówka porusza się po nieskończonej planszy podzielonej na pola w dwóch kolorach: białym i czarnym.
+
+---
+
+## 🖥️ Interfejs użytkownika
+
+Po uruchomieniu programu użytkownik zobaczy okno startowe. Aby kontynuować, należy kliknąć dowolny przycisk.
+
+W kolejnym etapie dostępne będą ustawienia:
+
+### 🔧 Ustawienia startowe:
+- **Tryb symulacji**:
+  - Conway’s Game of Life
+  - Langton’s Ant
+- **Rozmiar komórek**:
+  - Małe
+  - Średnie
+  - Duże  
+  *(okno symulacji ma stałe wymiary 1000x1000 px)*
+- **Szybkość odświeżania**: możliwość ręcznego ustawienia czasu w milisekundach.
+- *(Planowane)*: Możliwość wyboru kolorów komórek – być może poprzez paletę lub RGB.
+
+### ⌨️ Sterowanie w trakcie symulacji:
+- **Spacja** – pauza/wznowienie symulacji.
+- **Prawy przycisk myszy** – kliknięcie zmienia stan danej komórki.
+- *(Planowane)*: Panel w prawym górnym rogu wyświetlający:
+  - Liczbę żywych komórek („mieszkańców”)
+  - Czas trwania symulacji (liczba kroków/odświeżeń)
 
 ---

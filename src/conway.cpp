@@ -85,6 +85,18 @@ void runConway(sf::RenderWindow& window, int speed) {
                 }
             }
 
+            if (event->is<sf::Event::KeyPressed>()) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) {
+                    speed = std::min(100, speed + 1); // Zwiększ prędkość
+                }
+            }
+
+            if (event->is<sf::Event::KeyPressed>()) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) {
+                    speed = std::max(1, speed - 1); // Zmniejsz prędkość
+                }
+            }
+
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
