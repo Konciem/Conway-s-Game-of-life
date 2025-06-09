@@ -59,10 +59,13 @@ int main() {
         return 1;
     }
 
+    float cellSize; 
+
+
     AppState appState = AppState::MENU;
     SimulationType simType = SimulationType::NONE;
     std::string speedInput = "";
-    std::regex liczba_regex("^[0-9]+$"); // Regex to match numeric input
+    std::regex liczba_regex("^[0-9]+$");
 
     Button langtonButton("Langton's Ant", { 350, 300 }, { 300, 80 }, font);
     Button lifeButton("Game of Life", { 350, 400 }, { 300, 80 }, font);
@@ -111,7 +114,14 @@ int main() {
                         appState = AppState::SIZE_SELECTION;
                     }
                 } else if (appState == AppState::SIZE_SELECTION) {
-                    if (smallBtn.isClicked(mousePos) || mediumBtn.isClicked(mousePos) || largeBtn.isClicked(mousePos)) {
+                    if (smallBtn.isClicked(mousePos)) {
+                        cellSize = 30.f;
+                        appState = AppState::SPEED_INPUT;
+                    } else if (mediumBtn.isClicked(mousePos)) {
+                        cellSize = 20.f; 
+                        appState = AppState::SPEED_INPUT;
+                    } else if (largeBtn.isClicked(mousePos)) {
+                        cellSize = 10.f; 
                         appState = AppState::SPEED_INPUT;
                     }
                 }
@@ -174,13 +184,12 @@ int main() {
                     window.close();
                 } else if (simType == SimulationType::GAME_OF_LIFE) {
                     int speed = std::stoi(speedInput);  
-                    runConway(window, speed);
+                    runConway(window, speed, cellSize);
                     window.close();
                 }
                 break;
         }
 
-         // Call the simulation function here
         window.display();
         
     }

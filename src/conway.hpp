@@ -5,7 +5,7 @@
 extern const int cellSize;
 extern const int gridSize;
 
-void runConway(sf::RenderWindow& window, int speed);
+void runConway(sf::RenderWindow& window, int speed, float cellSize);
 
 sf::RectangleShape makeCell(int x, int y, sf::Color color, float cellSize);
 
