@@ -3,8 +3,29 @@
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
+#include <ranges>
+#include <numeric>
+#include <concepts>
 
-using Grid = std::vector<std::vector<bool>>;
+#include "infoPanel.hpp"
+#include "gameState.hpp"
+
+using Grid = std::vector<std::vector<char>>;
+
+// Koncept sprawdzający, czy Grid to 2D zakres zawierający elementy typu char
+template<typename T>
+concept SiatkaChar =
+    std::ranges::range<T> &&
+    std::ranges::range<std::ranges::range_value_t<T>> &&
+    std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>, char>;
+
+// Funkcja pomocnicza do zliczania żywych komórek z użyciem concepts i ranges
+int policzZyweKomorki(SiatkaChar auto const& siatka) {
+    return std::accumulate(siatka.begin(), siatka.end(), 0,
+        [](int suma, const auto& wiersz) {
+            return suma + std::ranges::count(wiersz, true);
+        });
+}
 
 sf::RectangleShape makeCell(int x, int y, sf::Color color, float cellSize) {
     sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
@@ -35,33 +56,23 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
     const int liczbaKolumn = oknoSzerokosc / cellSize;
     const int liczbaWierszy = oknoWysokosc / cellSize;
 
-    Grid grid(liczbaWierszy, std::vector<bool>(liczbaKolumn, false));
+    Grid grid(liczbaWierszy, std::vector<char>(liczbaKolumn, false));
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     bool paused = false;
 
     sf::Clock clock;
     sf::Font font;
-    sf::Text infoText(font, "", 16);
-    infoText.setStyle(sf::Text::Underlined);
     int liczbaKrokow = 0;
 
     if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Oswald-VariableFont_wght.ttf")) {
         return;
     }
 
-    infoText.setFont(font);
-    infoText.setCharacterSize(16);
-    infoText.setFillColor(sf::Color::Red);
-    infoText.setPosition({window.getSize().x - 250.0f, 12.0f});
+    InfoPanel infoPanel(window.getSize().x - 260.0f, 5.0f, font);
 
-    sf::RectangleShape rectB(sf::Vector2f(150.0f, 60.0f));
-    rectB.setFillColor(sf::Color::Black);
-    rectB.setPosition({window.getSize().x - 260.0f, 5.0f});
+    const std::string nazwaPliku = "save.txt"; // <-- DODANE
 
-    sf::RectangleShape rectW(sf::Vector2f(140.0f, 50.0f));
-    rectW.setFillColor(sf::Color::White);
-    rectW.setPosition({window.getSize().x - 255.0f, 10.0f});
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
@@ -69,22 +80,31 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
                 window.close();
             }
 
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { // <-- DODANE
+                saveToFile(grid, liczbaKrokow, nazwaPliku);
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::L)) { // <-- DODANE
+                loadFromFile(grid, liczbaKrokow, nazwaPliku);
+            }   
+
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
-                for (int y = 0; y < liczbaWierszy; ++y)
-                    for (int x = 0; x < liczbaKolumn; ++x)
-                        grid[y][x] = std::rand() % 2;
+                for (auto& row : grid)
+                    std::ranges::generate(row, [] { return std::rand() % 2; });
                 clock.restart();
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C)) {
-                for (auto& row : grid) std::fill(row.begin(), row.end(), false);
+                for (auto& row : grid | std::views::all)
+                    std::ranges::fill(row, false);
                 clock.restart();
                 liczbaKrokow = 0;
             }
 
             if (event->is<sf::Event::KeyPressed>()) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) paused = !paused;
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) speed = std::min(100, speed + 1);
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) speed = std::min(1000, speed + 1);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) speed = std::max(1, speed - 1);
             }
 
@@ -118,15 +138,7 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
             liczbaKrokow++;
         }
 
-        int aliveCount = 0;
-        for (const auto& row : grid)
-            for (bool cell : row)
-                if (cell) ++aliveCount;
-
-        std::ostringstream ss;
-        ss << "Zywe komorki: " << aliveCount << "\n";
-        ss << "Czas: " << liczbaKrokow;
-        infoText.setString(ss.str());
+        int aliveCount = policzZyweKomorki(grid);
 
         window.clear(sf::Color::White);
 
@@ -155,10 +167,9 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
             }
         }
 
-        window.draw(rectB);
-        window.draw(rectW);
-        window.draw(infoText);
+        infoPanel.update(aliveCount, liczbaKrokow);
+        infoPanel.draw(window);
         window.display();
-        sf::sleep(sf::milliseconds(speed * 10));
+        sf::sleep(sf::milliseconds(speed*10));
     }
 }

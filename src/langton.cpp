@@ -1,89 +1,129 @@
-#include "langton.hpp"
-#include <unordered_map>
+#include <SFML/Graphics.hpp>
+#include <vector>
+#include <ctime>
+#include "infoPanel.hpp" 
 
-constexpr int windowSize = 1000;
-constexpr int cellSize = 10;
-constexpr int gridSize = windowSize / cellSize;
+using Grid = std::vector<std::vector<bool>>;  // false = białe, true = czarne
 
-template<typename T>
-concept Milliseconds = std::integral<T> && requires(T t) {
-    { t > 0 };
-};
+enum Kierunek {N, E, S, W};
 
-enum Direction { Up, Right, Down, Left };
-
-sf::RectangleShape makeCell(int x, int y, sf::Color color) {
-    sf::RectangleShape rect(sf::Vector2f(cellSize, cellSize));
-    rect.setPosition(sf::Vector2f(x * cellSize, y * cellSize));
-    rect.setFillColor(color);
-    return rect;
+sf::RectangleShape makeCell1(int x, int y, sf::Color color, float cellSize) {
+    sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
+    cell.setFillColor(color);
+    cell.setPosition(sf::Vector2f(x * cellSize, y * cellSize));
+    return cell;
 }
 
-void runLangtonsAnt(sf::RenderWindow& window, int speed) {
-    std::unordered_map<int, std::unordered_map<int, bool>> grid;
+void runLangtonsAnt(sf::RenderWindow& window, int speed, float cellSize) {
+    const int oknoSzerokosc = window.getSize().x;
+    const int oknoWysokosc = window.getSize().y;
 
-    int antX = gridSize / 2;
-    int antY = gridSize / 2;
-    Direction antDir = Up;
+    const int liczbaKolumn = oknoSzerokosc / cellSize;
+    const int liczbaWierszy = oknoWysokosc / cellSize;
+
+    Grid grid(liczbaWierszy, std::vector<bool>(liczbaKolumn, false));  // początkowo białe pola
+
+    // Pozycja mrówki na środku planszy
+    int mrówkaX = liczbaKolumn / 2;
+    int mrówkaY = liczbaWierszy / 2;
+    Kierunek kierunek = N;
+
+    bool paused = false;
+    int krok = 0;
+
+    sf::Clock clock;
+    sf::Font font;
+
+    if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Oswald-VariableFont_wght.ttf")) {
+        return;
+    }
+    InfoPanel infoPanel(window.getSize().x - 260.0f, 5.0f, font);
 
     while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
+            }
+
+            if (event->is<sf::Event::KeyPressed>()) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) paused = !paused;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+                    // Reset planszy i mrówki
+                    for (auto& wiersz : grid)
+                        std::fill(wiersz.begin(), wiersz.end(), false);
+                    mrówkaX = liczbaKolumn / 2;
+                    mrówkaY = liczbaWierszy / 2;
+                    kierunek = N;
+                    krok = 0;
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) speed = std::max(1, speed - 1);
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) speed = std::min(1000, speed + 1);
+            }
         }
 
-        bool& isBlack = grid[antY][antX];
+        if (!paused) {
+            // Stan pola pod mrówką
+            bool obecnePole = grid[mrówkaY][mrówkaX];
 
-        if (isBlack)
-            antDir = static_cast<Direction>((antDir + 3) % 4); // left
-        else
-            antDir = static_cast<Direction>((antDir + 1) % 4); // right
+            // Obrót i zmiana pola
+            if (!obecnePole) { 
+                // Białe pole => obróć w prawo
+                kierunek = static_cast<Kierunek>((kierunek + 1) % 4);
+                grid[mrówkaY][mrówkaX] = true;  // zmień na czarne
+            } else {
+                // Czarne pole => obróć w lewo
+                kierunek = static_cast<Kierunek>((kierunek + 3) % 4);  // +3 mod 4 == -1 mod 4
+                grid[mrówkaY][mrówkaX] = false;  // zmień na białe
+            }
 
-        isBlack = !isBlack;
+            // Ruch mrówki do przodu
+            switch (kierunek) {
+                case N: mrówkaY = (mrówkaY - 1 + liczbaWierszy) % liczbaWierszy; break;
+                case E: mrówkaX = (mrówkaX + 1) % liczbaKolumn; break;
+                case S: mrówkaY = (mrówkaY + 1) % liczbaWierszy; break;
+                case W: mrówkaX = (mrówkaX - 1 + liczbaKolumn) % liczbaKolumn; break;
+            }
 
-        switch (antDir) {
-            case Up:    --antY; break;
-            case Right: ++antX; break;
-            case Down:  ++antY; break;
-            case Left:  --antX; break;
+            krok++;
         }
 
         window.clear(sf::Color::White);
 
-
-        for (int x = 0; x <= window.getSize().x; x += cellSize) {
+        // Rysuj siatkę
+        for (int x = 0; x <= oknoSzerokosc; x += cellSize) {
             sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(x, 0), sf::Color(200, 200, 200)),
-            sf::Vertex(sf::Vector2f(x, window.getSize().y), sf::Color(200, 200, 200))
+                sf::Vertex(sf::Vector2f(x, 0), sf::Color(200, 200, 200)),
+                sf::Vertex(sf::Vector2f(x, oknoWysokosc), sf::Color(200, 200, 200))
             };
-        window.draw(line, 2, sf::PrimitiveType::Lines);
-
+            window.draw(line, 2, sf::PrimitiveType::Lines);
         }
-
-        for (int y = 0; y <= window.getSize().y; y += cellSize) {
+        for (int y = 0; y <= oknoWysokosc; y += cellSize) {
             sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(0, y), sf::Color(200, 200, 200)),
-            sf::Vertex(sf::Vector2f(window.getSize().x, y), sf::Color(200, 200, 200))
-        };
-        window.draw(line, 2, sf::PrimitiveType::Lines);
+                sf::Vertex(sf::Vector2f(0, y), sf::Color(200, 200, 200)),
+                sf::Vertex(sf::Vector2f(oknoSzerokosc, y), sf::Color(200, 200, 200))
+            };
+            window.draw(line, 2, sf::PrimitiveType::Lines);
         }
 
-        for (const auto& [y, row] : grid) {
-            for (const auto& [x, black] : row) {
-                if (black) {
-                    auto rect = makeCell(x, y, sf::Color::Black);
+        // Rysuj pola
+        for (int y = 0; y < liczbaWierszy; ++y) {
+            for (int x = 0; x < liczbaKolumn; ++x) {
+                if (grid[y][x]) {
+                    auto rect = makeCell1(x, y, sf::Color::Black, cellSize);
                     window.draw(rect);
                 }
             }
         }
 
-        sf::RectangleShape antShape(sf::Vector2f(cellSize, cellSize));
-        antShape.setPosition(sf::Vector2f(antX * cellSize, antY * cellSize));
-        antShape.setFillColor(sf::Color::Red);
-        window.draw(antShape);
+        // Rysuj mrówkę jako czerwone pole
+        sf::RectangleShape antCell = makeCell1(mrówkaX, mrówkaY, sf::Color::Red, cellSize);
+        window.draw(antCell);
+
+
+        infoPanel.update(0, krok);  // nie liczymy żywych, pokazujemy tylko krok
+        infoPanel.draw(window);
 
         window.display();
-        sf::sleep(sf::milliseconds(speed));
+        sf::sleep(sf::milliseconds(speed * 10));
     }
 }

@@ -2,13 +2,15 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <fstream>
+
 #include "langton.hpp"
 #include "conway.hpp"
-
-
-
+#include "button.hpp"
+#include "gameState.hpp"
 
 enum class AppState {
+    START,
     MENU,
     SIZE_SELECTION,
     SPEED_INPUT,
@@ -23,49 +25,38 @@ enum class SimulationType {
 
 const sf::Vector2u WINDOW_SIZE(1000, 1000);
 
-class Button {
-public:
-    sf::RectangleShape rect;
-    sf::Text text;
-
-    Button(const std::string& label, sf::Vector2f position, sf::Vector2f size, sf::Font& font)
-    : text(font,label, 24)
-    {
-    rect.setSize(size);
-    rect.setFillColor(sf::Color::White);
-    rect.setPosition(position);
-
-    text.setFillColor(sf::Color::Black);
-    sf::FloatRect textBounds = text.getLocalBounds();
-    text.setOrigin({textBounds.size.x / 2.f, textBounds.size.y / 2.f});
-    text.setPosition(position + size / 2.f);
-    }
-
-
-    bool isClicked(sf::Vector2f mousePos) {
-        return rect.getGlobalBounds().contains(mousePos);
-    }
-
-    void draw(sf::RenderWindow& window) {
-        window.draw(rect);
-        window.draw(text);
-    }
-};
-
 int main() {
     sf::RenderWindow window(sf::VideoMode({WINDOW_SIZE.x, WINDOW_SIZE.y}), "Symulacje", sf::Style::Close);
     sf::Font font;
-    if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Oswald-VariableFont_wght.ttf")) {
+
+    sf::Texture tloTekstura;
+    if (!tloTekstura.loadFromFile("/Users/konradciemala/Documents/Conway-s-Game-of-life/puls.png")) {
+        std::cerr << "Błąd ładowania tła\n";
         return 1;
     }
+    sf::Sprite tloSprite(tloTekstura);
+
+    sf::Vector2f scale = tloSprite.getScale();
+    tloSprite.setScale({
+        static_cast<float>(window.getSize().x) / tloTekstura.getSize().x,
+        static_cast<float>(window.getSize().y) / tloTekstura.getSize().y}
+    );
+
+    if (!font.openFromFile("/Users/konradciemala/Library/Fonts/Doto-VariableFont_ROND,wght.ttf")) {
+        return 1;
+    }
+    font.setSmooth(false);
 
     float cellSize; 
 
-
-    AppState appState = AppState::MENU;
+    AppState appState = AppState::START;
     SimulationType simType = SimulationType::NONE;
     std::string speedInput = "";
-    std::regex liczba_regex("^[0-9]+$");
+    std::regex liczba_regex("^[0-9]+$"); //regex
+
+    Button startButton("Start", { 350, 400 }, { 300, 80 }, font);
+    Button loadButton("Wczytaj zapis", { 350, 500 }, { 300, 80 }, font);
+
 
     Button langtonButton("Langton's Ant", { 350, 300 }, { 300, 80 }, font);
     Button lifeButton("Game of Life", { 350, 400 }, { 300, 80 }, font);
@@ -73,6 +64,14 @@ int main() {
     Button smallBtn("Mala", { 350, 250 }, { 300, 70 }, font);
     Button mediumBtn("Srednia", { 350, 350 }, { 300, 70 }, font);
     Button largeBtn("Duza", { 350, 450 }, { 300, 70 }, font);
+
+    Button saveButton("Zapisz stan", { 20, 20 }, { 200, 50 }, font);
+
+    sf::Text startTitle(font, "CONWAY'S GAME OF LIFE", 70);
+    startTitle.setFillColor(sf::Color::White);
+    sf::FloatRect startTitleBounds = startTitle.getLocalBounds();
+    startTitle.setOrigin({startTitleBounds.size.x / 2.f, startTitleBounds.size.y / 2.f});
+    startTitle.setPosition({window.getSize().x / 2.f, 300});
 
     sf::Text titleText(font, "Wybierz symulacje:", 30);
     sf::FloatRect titleTextBounds = titleText.getLocalBounds();
@@ -105,7 +104,20 @@ int main() {
             sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
 
             if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-                if (appState == AppState::MENU) {
+                if (appState == AppState::START) {
+                    if (startButton.isClicked(mousePos)) {
+                        appState = AppState::MENU;
+                    }
+                    else if (loadButton.isClicked(mousePos)) {
+                        Grid grid;
+                        int krok = 0;
+                        if (loadFromFile(grid, krok, "save.txt")) {
+                            appState = AppState::SIMULATION;
+                        } else {
+                            std::cout << "blad wczytywania";
+                        }
+                    }
+                } else if (appState == AppState::MENU) {
                     if (langtonButton.isClicked(mousePos)) {
                         simType = SimulationType::LANGTON;
                         appState = AppState::SIZE_SELECTION;
@@ -115,7 +127,7 @@ int main() {
                     }
                 } else if (appState == AppState::SIZE_SELECTION) {
                     if (smallBtn.isClicked(mousePos)) {
-                        cellSize = 30.f;
+                        cellSize = 25.f;
                         appState = AppState::SPEED_INPUT;
                     } else if (mediumBtn.isClicked(mousePos)) {
                         cellSize = 20.f; 
@@ -137,10 +149,13 @@ int main() {
                         speedInput += static_cast<char>(textEntered->unicode);
                     }
 
-                    if (std::regex_match(speedInput, liczba_regex)) {
+                    if (std::regex_match(speedInput, liczba_regex)) { //regex
                         int speed = std::stoi(speedInput);
                         if (speed > 0) {
-                            appState = AppState::SIMULATION;
+                            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
+                                appState = AppState::SIMULATION;
+                            }
+                            
                             std::cout << "Uruchamianie symulacji z predkoscia: " << speed << " ms\n";
                         } else {
                             std::cout << "Podaj liczbę większą od zera!\n";
@@ -151,17 +166,19 @@ int main() {
 
                     inputText.setString(speedInput);
                     
-                }
-              
-                    
+                }                    
             }
         }
 
-        
         window.clear(sf::Color::Black);
 
-
         switch (appState) {
+            case AppState::START:
+                window.draw(tloSprite);
+                window.draw(startTitle);
+                startButton.draw(window);
+                loadButton.draw(window);
+                break;
             case AppState::MENU:
                 window.draw(titleText);
                 langtonButton.draw(window);
@@ -180,18 +197,18 @@ int main() {
             case AppState::SIMULATION:
                 if (simType == SimulationType::LANGTON) {
                     int speed = std::stoi(speedInput);  
-                    runLangtonsAnt(window, speed);
+                    runLangtonsAnt(window, speed, cellSize);
                     window.close();
                 } else if (simType == SimulationType::GAME_OF_LIFE) {
                     int speed = std::stoi(speedInput);  
+                    
                     runConway(window, speed, cellSize);
+                    saveButton.draw(window);
                     window.close();
                 }
                 break;
         }
-
         window.display();
-        
     }
 
     return 0;
