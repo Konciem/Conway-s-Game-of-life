@@ -52,7 +52,7 @@ int main() {
     AppState appState = AppState::START;
     SimulationType simType = SimulationType::NONE;
     std::string speedInput = "";
-    std::regex liczba_regex("^[0-9]+$"); //regex
+    std::regex liczba_regex("^[0-9]{1,3}$"); //REGEX
 
     Button startButton("Start", { 350, 400 }, { 300, 80 }, font);
     Button loadButton("Wczytaj zapis", { 350, 500 }, { 300, 80 }, font);
@@ -142,7 +142,7 @@ int main() {
             if (appState == AppState::SPEED_INPUT) {
                 if (const auto* textEntered = event->getIf<sf::Event::TextEntered>()) {
                     if (textEntered->unicode < 128)
-                        std::cout << "ASCII character typed: " << static_cast<char>(textEntered->unicode) << std::endl;
+                        std::cout << static_cast<char>(textEntered->unicode) << std::endl;
                     if (textEntered->unicode == '\b' && !speedInput.empty()) {
                         speedInput.pop_back();
                     } else if (std::isdigit(textEntered->unicode)) {
@@ -158,12 +158,11 @@ int main() {
                             
                             std::cout << "Uruchamianie symulacji z predkoscia: " << speed << " ms\n";
                         } else {
-                            std::cout << "Podaj liczbę większą od zera!\n";
+                            std::cout << "Podaj liczbe wieksza od zera\n";
                             speedInput.clear();
-                            inputText.setString("Błąd: > 0");
+                            inputText.setString("blad: > 0");
                         }
                     }
-
                     inputText.setString(speedInput);
                     
                 }                    

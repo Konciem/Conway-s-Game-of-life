@@ -8,7 +8,7 @@ bool saveToFile(const Grid& grid, int krok, const std::string& filename) {
     std::filesystem::path filePath = filename;
 
     // Tworzymy katalog, jeśli nie istnieje
-    if (!std::filesystem::exists(filePath.parent_path())) {
+    if (!filePath.parent_path().empty() && !std::filesystem::exists(filePath.parent_path())) {
         std::filesystem::create_directories(filePath.parent_path());
     }
 
