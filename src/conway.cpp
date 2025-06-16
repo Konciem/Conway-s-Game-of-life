@@ -18,14 +18,14 @@ using Grid = std::vector<std::vector<char>>;
 //Concepty
 template<typename T>
 concept SiatkaChar =
-    std::ranges::range<T> &&
-    std::ranges::range<std::ranges::range_value_t<T>> &&
+    std::ranges::range<T> && // ranges
+    std::ranges::range<std::ranges::range_value_t<T>> && //ranges
     std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>, char>;
 
 int policzZyweKomorki(SiatkaChar auto const& siatka) {
     return std::accumulate(siatka.begin(), siatka.end(), 0,
         [](int suma, const auto& wiersz) {
-            return suma + std::ranges::count(wiersz, true);
+            return suma + std::ranges::count(wiersz, true); //ranges
         });
 }
 

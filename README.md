@@ -58,3 +58,4 @@ W kolejnym etapie dostępne będą ustawienia:
   - Czas trwania symulacji (liczba kroków/odświeżeń)
 
 ---
+<img width="1372" alt="Image" src="https://github.com/user-attachments/assets/239ecc86-56ab-48f5-81ec-f7dea4fa754d" />
