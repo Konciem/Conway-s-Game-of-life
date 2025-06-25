@@ -1,0 +1,4 @@
+Nazwa symulacji: Conway Game of Life
+Czas trwania: 525s
+Liczba kroków: 41423
+Sumaryczna liczba żywych komórek: 5254346

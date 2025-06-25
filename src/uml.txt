@@ -1,0 +1,73 @@
+@startuml
+class PatternLoader {
+    - folderPath : std::string
+    - patterns : std::vector<Pattern>
+    - currentIndex : size_t
+    + PatternLoader(folder : std::string)
+    + loadPatterns() : void
+    + loadFromFile(path : std::filesystem::path) : Pattern
+    + getCurrent() : Pattern
+    + next() : void
+    + previous() : void
+}
+
+class SimulationLogger {
+    - simulationName : std::string
+    - startTime : chrono::steady_clock::time_point
+    - steps : int
+    - totalAliveCells : int
+    + SimulationLogger(name : std::string)
+    + start() : void
+    + logStep(grid : Grid) : void
+    + saveToFile(filename : std::string) : void
+}
+
+class Button {
+    - rect : sf::RectangleShape
+    - text : sf::Text
+    + Button(label : std::string, position : sf::Vector2f, size : sf::Vector2f, font : sf::Font)
+    + isClicked(mousePos : sf::Vector2f) : bool
+    + draw(window : sf::RenderWindow) : void
+}
+
+class InfoPanel {
+    - background : sf::RectangleShape
+    - border : sf::RectangleShape
+    - text : sf::Text
+    + InfoPanel(x : float, y : float, font : sf::Font)
+    + update(aliveCount : int, steps : int) : void
+    + draw(window : sf::RenderWindow) : void
+}
+
+class Ant {
+    - x : int
+    - y : int
+    - kierunek : Kierunek
+    - maxX : int
+    - maxY : int
+    + Ant(x : int, y : int, kierunek : Kierunek, maxX : int, maxY : int)
+    + obrocPrawo() : void
+    + obrocLewo() : void
+    + idzDoPrzodu() : void
+    + wykonajRuch(siatka : vector<vector<char>>) : void
+    + pobierzX() : int
+    + pobierzY() : int
+}
+
+class Randomizer {
+    + fillRandom(grid : vector<vector<char>>) : void
+    + clear(grid : vector<vector<char>>) : void
+}
+
+class Conway {
+    + runConway(window : sf::RenderWindow, speed : int) : void
+}
+
+PatternLoader --> \"*\" Pattern
+Button --> sf::RectangleShape
+Button --> sf::Text
+InfoPanel --> sf::RectangleShape
+InfoPanel --> sf::Text
+Ant --> Kierunek
+
+@enduml

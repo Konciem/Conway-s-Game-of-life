@@ -20,7 +20,7 @@ InfoPanel::InfoPanel(float x, float y, sf::Font& font)
 
 void InfoPanel::update(int aliveCount, int steps) {
     std::ostringstream ss;
-    ss << "Zywe komrki: " << aliveCount << "\n";
+    ss << "Zywe komorki: " << aliveCount << "\n";
     ss << "Kroki: " << steps;
     text.setString(ss.str());
 }

@@ -1,8 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <ctime>
+
 #include "infoPanel.hpp"
 #include "ant.hpp"
+#include "Log.hpp"
 
 using Grid = std::vector<std::vector<char>>;
 
@@ -32,6 +34,9 @@ void runLangtonsAnt(sf::RenderWindow& window, int speed, float cellSize) {
 
     InfoPanel infoPanel(window.getSize().x - 260.0f, 5.0f, font);
 
+    SimulationLogger logger("Langton's Ant");
+    logger.start();
+
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
@@ -53,6 +58,8 @@ void runLangtonsAnt(sf::RenderWindow& window, int speed, float cellSize) {
         if (!paused) {
             ant.wykonajRuch(grid);
             krok++;
+
+            logger.logStep(grid);
         }
 
         window.clear(sf::Color::White);
@@ -85,6 +92,9 @@ void runLangtonsAnt(sf::RenderWindow& window, int speed, float cellSize) {
         infoPanel.update(0, krok);
         infoPanel.draw(window);
         window.display();
-        sf::sleep(sf::milliseconds(speed * 10));
+        sf::sleep(sf::milliseconds(speed));
     }
+
+    // LOGGER
+    logger.saveToFile("log_simulacji.txt");
 }

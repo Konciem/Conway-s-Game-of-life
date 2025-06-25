@@ -10,7 +10,7 @@ Button::Button(const std::string& label, sf::Vector2f position, sf::Vector2f siz
 
     text.setFillColor(sf::Color::Black);
     sf::FloatRect textBounds = text.getLocalBounds();
-    text.setOrigin({textBounds.size.x / 2.f, textBounds.size.y / 2.f});
+    text.setOrigin({textBounds.size.x / 2.f, (textBounds.size.y / 2.f) + 6.f});
     text.setPosition(position + size / 2.f);
 }
 

@@ -55,7 +55,7 @@ int main() {
     std::regex liczba_regex("^[0-9]{1,3}$"); //REGEX
 
     Button startButton("Start", { 350, 400 }, { 300, 80 }, font);
-    Button loadButton("Wczytaj zapis", { 350, 500 }, { 300, 80 }, font);
+    Button loadButton("", { 0, 0 }, { 0, 0 }, font);
 
 
     Button langtonButton("Langton's Ant", { 350, 300 }, { 300, 80 }, font);

@@ -11,6 +11,7 @@
 #include "gameState.hpp"
 #include "pattern.hpp"
 #include "random.hpp"
+#include "Log.hpp"
 
 
 using Grid = std::vector<std::vector<char>>;
@@ -78,6 +79,10 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
     PatternLoader loader("patterns");
     Pattern currentPattern = loader.getCurrent();
 
+    SimulationLogger logger("Conway Game of Life");
+    logger.start();
+
+
     while (window.isOpen()) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         int gridX = mousePos.x / cellSize;
@@ -137,6 +142,9 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
             }
             grid = std::move(nextGrid);
             liczbaKrokow++;
+
+            // LOGGER
+            logger.logStep(grid);
         }
 
         int aliveCount = policzZyweKomorki(grid);
@@ -184,4 +192,7 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
         window.display();
         sf::sleep(sf::milliseconds(speed));
     }
+
+    // LOGGER
+    logger.saveToFile("log_simulacji.txt");
 }
