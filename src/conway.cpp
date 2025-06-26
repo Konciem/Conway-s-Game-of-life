@@ -175,7 +175,7 @@ void runConway(sf::RenderWindow& window, int speed, float cellSize) {
         if (showShadow) {
             for (size_t y = 0; y < currentPattern.size(); ++y) {
                 for (size_t x = 0; x < currentPattern[y].size(); ++x) {
-                    int gx = gridX + x;
+                    int gx = gridX + x;// gridx-myszka x-pattern
                     int gy = gridY + y;
                     if (gx >= 0 && gx < liczbaKolumn && gy >= 0 && gy < liczbaWierszy) {
                         if (currentPattern[y][x]) {

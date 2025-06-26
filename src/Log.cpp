@@ -1,5 +1,6 @@
 #include "Log.hpp"
 #include <fstream>
+#include <ranges>
 
 SimulationLogger::SimulationLogger(const std::string& name)
     : simulationName(name), startTime(std::chrono::steady_clock::now()) {}
@@ -10,8 +11,8 @@ void SimulationLogger::start() {
 
 void SimulationLogger::logStep(const Grid& grid) {
     ++steps;
-    for (const auto& row : grid)
-        for (char cell : row)
+    for (const auto& row : grid | std::views::all)
+        for (char cell : row | std::views::all)
             if (cell)
                 ++totalAliveCells;
 }
